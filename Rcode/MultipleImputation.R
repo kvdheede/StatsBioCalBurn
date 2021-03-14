@@ -52,8 +52,49 @@ estimates_weight_calhour_calories = pool(fit_weight_calhour_calories)
 summary(estimates_weight_calhour_calories)
 # ....
 
+############# ALTERNATIVE #############
+# Multiple imputation analysis
+
+imp <- mice(dataframe, m=100)
+imp
+# ALTERNATIVES
+
+imp <- mice(dataframe, meth = c("", "", "norm"), m=100)
+imp <- mice(dataframe, meth = c("", "", "norm.nob"), m=100)
 
 
+## Imputed values for calories Each row corresponds to a missing entry in age.
+## The columns contain the multiple imputations.
+
+imp$imp$calories[1:10,1:5]
+
+## The complete data combine observed and imputed data.
+## The first completed data set can be obtained as (only first 10 passenger shown)
+
+complete(imp,1)[1:30,]
+
+
+com <- complete(imp, "long", inc=T)
+col <- rep(c("blue","red")[1+as.numeric(is.na(imp$data$calories))],101)
+stripplot(calories~.imp, data=com, jit=TRUE, fac=0.8, col=col, pch=20, cex=1.4, xlab="Imputation number")
+
+
+## Analyzing the imputed data sets
+
+fit <- with(data=imp, exp=lm(calories ~ calhour + weight ))
+
+## Creating a data set with the results of all the analysis
+
+MI.matrix<-matrix(0,100,3)
+for(k in 1:100) MI.matrix[k,]<-coefficients(fit$analyses[[k]])
+MI.results=data.frame(Intercept=MI.matrix[,1], calhour=MI.matrix[,2],weight=MI.matrix[,3])
+MI.results[1:10,]
+
+
+est <- pool(fit)
+summary(est)
+
+############# ALTERNATIVE #############
 
 
 
