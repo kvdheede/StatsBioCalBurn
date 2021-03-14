@@ -24,3 +24,29 @@ dataframe$w = 1/fitted(missing_model)
 # Calculating the model for calories in function of calhour
 fit_calhour_calories = glm(calories~calhour, data=dataframe, weights=dataframe$w)
 summary(fit_calhour_calories)
+
+
+
+## KLAAS ALTERNATIVE
+## include weight in modeling weights + in final model
+
+
+dataframe$r<-as.numeric(!is.na(dataframe$calories))
+head(dataframe,30)
+
+# Calculating the weights (modeling r in function of calhour)
+dataframe.ipw<-glm(r ~ weight  + calhour , data=dataframe,family=binomial)
+summary(dataframe.ipw)
+
+## Calculating the weights: Inverse Probabilities
+
+dataframe$w<-1/fitted(dataframe.ipw)
+head(dataframe,30)
+
+
+# Calculating the model for calories in function of calhour
+fit_calhour_calories = glm(calories~calhour + weight, data=dataframe, weights=dataframe$w)
+summary(fit_calhour_calories)
+
+## KLAAS ALTERNATIVE
+## KLAAS ALTERNATIVE
